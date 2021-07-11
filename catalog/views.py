@@ -11,6 +11,7 @@ def index(request):
      # The 'all()' is implied by default.
      num_authors = Author.objects.count()
      num_genres = Genre.objects.count()
+     num_languages = Language.objects.count()
      
 
      context = {
@@ -19,7 +20,28 @@ def index(request):
          'num_instances_available': num_instances_available,
          'num_authors': num_authors,
          'num_genres': num_genres,
+         'num_languages': num_languages,
      }
 
      # Render the HTML template index.html with the data in the context variable
      return render(request, 'index.html', context=context)
+
+from django.views import generic
+class BookListView(generic.ListView):
+    model = Book
+    paginate_by = 10
+    #context_object_name = 'book_list'     # your own name for the list as a template variable
+    #queryset = Book.objects.filter(title__icontains='war')[:5]  
+    #template_name = 'books/book_list.html'
+    
+    #def get_queryset(self):
+        #return Book.objects.filter(title__icontains='war')[:5]
+
+    #def get_context_data(self, **kwargs):
+        # Call the base implementation first to get the context
+        #context = super(BookListView, self).get_context_data(**kwargs)
+        # Create any data and add it to the context
+        ##return context
+
+class BookDetailView(generic.DetailView):
+    model = Book
