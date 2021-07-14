@@ -39,7 +39,7 @@ class Book(models.Model):
 
 
 import uuid # Required for unique book instances
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Permission, PermissionsMixin, User
 from datetime import date
 
 class BookInstance(models.Model):
@@ -72,6 +72,7 @@ class BookInstance(models.Model):
     )
     class Meta:
         ordering = ['due_back']
+        permissions = (('can_mark_returned', 'Set book as returned'),)
 
     def __str__(self):
         return f'{self.id} ({self.book.title})'
