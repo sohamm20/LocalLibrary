@@ -3,6 +3,7 @@ from catalog.models import (
     Genre,
     Book,
     Author,
+    BookInstance,
 )
 
 
@@ -22,4 +23,10 @@ class AuthorSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Author
+        fields = '__all__'
+
+class BookInstanceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = BookInstance
         fields = '__all__'

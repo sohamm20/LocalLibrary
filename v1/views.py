@@ -1,6 +1,7 @@
 from django.http.request import QueryDict
 from django.shortcuts import render
 from catalog.models import (
+    BookInstance,
     Genre,
     Book,
     Author,
@@ -11,6 +12,7 @@ from .serializers import (
     GenreSerializer,
     BookSerializer,
     AuthorSerializer,
+    BookInstanceSerializer,
 )
 
 # Create your views here.
@@ -27,3 +29,7 @@ class BookListAPIView(generics.ListAPIView):
 class AuthorListAPIView(generics.ListAPIView):
     serializer_class = AuthorSerializer
     queryset = Author.objects.all()
+
+class LoanedBooksAllListAPIView(generics.ListAPIView):
+    serializer_class = BookInstanceSerializer
+    queryset = BookInstance.objects.filter(status__exact='o')
