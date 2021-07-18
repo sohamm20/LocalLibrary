@@ -9,7 +9,6 @@ from catalog.models import (
 
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth.models import User
 from .serializers import (
     GenreSerializer,
     BookSerializer,
@@ -43,3 +42,6 @@ class LoanedBooksByUserListAPIView(generics.ListAPIView):
     def get_queryset(self):
         user = self.request.user
         return BookInstance.objects.filter(borrower=user, status__exact='o').order_by('due_back')
+class AuthorDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
