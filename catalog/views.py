@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required, permission_required
 
 from catalog.forms import RenewBookForm 
+from django.views import generic
 
 # Create your views here.
 #@login_required
@@ -42,7 +43,6 @@ def index(request):
      # Render the HTML template index.html with the data in the context variable
      return render(request, 'index.html', context=context)
 
-from django.views import generic
 class BookListView(generic.ListView):
     model = Book
     paginate_by = 10
