@@ -2,3 +2,6 @@ django
 djangorestframework
 markdown
 django-filter
+coverage==5.5
+Faker==8.10.3
+factory-boy==3.2.0
