@@ -7,6 +7,7 @@ from catalog.models import (
     Book,
     Author,
 )
+from catalog.forms import RenewBookForm
 from rest_framework import generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .serializers import (
@@ -127,9 +128,26 @@ class AuthorDetailView(APIView):
         author.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class LoanedBooksAllListAPIView(generics.ListAPIView):
-    serializer_class = BookInstanceSerializer
-    queryset = BookInstance.objects.filter(status__exact='o')
+class LoanedBooksAllListAPIView(APIView):
+    #serializer_class = BookInstanceSerializer
+    #queryset = BookInstance.objects.filter(status=BookInstance.ON_LOAN)
+    permission_classes = [AllowAny]
+    def get(self, request):
+        query = self.request.GET.get('q')
+        queryset = BookInstance.objects.filter(status__iexact=query)
+        serializer = BookInstanceSerializer(queryset, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    
+    def post(self, request):
+        serializer = BookInstanceSerializer(data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+
+
+
 
 class LoanedBooksByUserListAPIView(generics.ListAPIView):
     serializer_class = BookInstanceSerializer
