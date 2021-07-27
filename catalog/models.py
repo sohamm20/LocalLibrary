@@ -33,7 +33,7 @@ class Book(models.Model):
 
     def display_genre(self):
         """Create a string for the Genre. This is required to display genre in Admin."""
-        return ', '.join(genre.name for genre in self.genre.all()[:3])
+        return ', '.join(genre.name for genre in self.genre.all()[:1])
 
     display_genre.short_description = 'Genre'
 
@@ -56,18 +56,23 @@ class BookInstance(models.Model):
         return False
 
 
+    MAINTAINANCE = 'm'
+    ON_LOAN = 'o'
+    AVAILABLE = 'a'
+    RESERVED = 'r'
+
     LOAN_STATUS = (
-        ('m', 'Maintenance'),
-        ('o', 'On loan'),
-        ('a', 'Available'),
-        ('r', 'Reserved'),
+        (MAINTAINANCE, 'Maintenance'),
+        (ON_LOAN, 'On loan'),
+        (AVAILABLE, 'Available'),
+        (RESERVED, 'Reserved'),
     )
 
     status = models.CharField(
         max_length=1,
         choices=LOAN_STATUS,
         blank=True,
-        default='m',
+        default=MAINTAINANCE,
         help_text='Book availability',
     )
     class Meta:
@@ -76,6 +81,8 @@ class BookInstance(models.Model):
 
     def __str__(self):
         return f'{self.id} ({self.book.title})'
+
+
 
 
 class Author(models.Model):

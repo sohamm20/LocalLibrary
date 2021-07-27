@@ -1,6 +1,17 @@
 from django.shortcuts import render
 from .models import Book, Author, BookInstance, Genre, Language
 #from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
+
+import datetime
+
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.contrib.auth.decorators import login_required, permission_required
+
+from catalog.forms import RenewBookForm 
 
 # Create your views here.
 #@login_required
@@ -58,8 +69,6 @@ class AuthorListView(generic.ListView):
 class AuthorDetailView(generic.DetailView):
     model = Author
 
-from django.contrib.auth.mixins import LoginRequiredMixin
-
 class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
     model = BookInstance
     template_name = 'catalog/bookinstance_list_borrowed_user.html'
@@ -67,8 +76,7 @@ class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
 
     def get_queryset(self):
         return BookInstance.objects.filter(borrower=self.request.user).filter(status__exact='o').order_by('due_back')
-
-from django.contrib.auth.mixins import PermissionRequiredMixin 
+ 
 #only visible to users with can_mark_returned permission
 class LoanedBooksAllListView(PermissionRequiredMixin, generic.ListView):
     model = BookInstance
@@ -78,16 +86,6 @@ class LoanedBooksAllListView(PermissionRequiredMixin, generic.ListView):
 
     def get_queryset(self):
         return BookInstance.objects.filter(status__exact='o').order_by('due_back')
-
-
-import datetime
-
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-from django.contrib.auth.decorators import login_required, permission_required
-
-from catalog.forms import RenewBookForm 
 
 
 @login_required
