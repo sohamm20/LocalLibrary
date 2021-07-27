@@ -1,0 +1,19 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+djangorestframework = "*"
+django-filter = "*"
+coverage = "==5.5"
+factory-boy = "==3.2.0"
+ipdb = "==0.13.9"
+Django = "*"
+Markdown = "*"
+Faker = "==8.10.3"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"
