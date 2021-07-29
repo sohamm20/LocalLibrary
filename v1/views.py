@@ -18,7 +18,6 @@ from .serializers import (
 )
 from rest_framework.response import Response
 from rest_framework import status
-import ipdb
 from rest_framework.views import APIView
 from django.http import Http404
 class GenreListAPIView(APIView):
