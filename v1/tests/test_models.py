@@ -7,7 +7,6 @@ from catalog.models import (
     BookInstance
 )
 from django.urls import reverse
-import ipdb
 from v1.factories import (
     GenreFactory
 )
