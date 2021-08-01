@@ -8,8 +8,10 @@ from catalog.models import (
 )
 from django.urls import reverse
 from v1.factories import (
-    GenreFactory
+    GenreFactory,
+    LanguageFactory,
 )
+import ipdb
 
 class ModelsTestCases(TestCase):
     def setUp(self):
@@ -18,11 +20,13 @@ class ModelsTestCases(TestCase):
             first_name="Tasha",
             last_name="testDaije"
         )
-        self.language = Language.objects.create(name="Arabic")
+        self.language = LanguageFactory()
 
     def test_can_create_genre_model(self):
         self.assertEqual(self.genre.__str__(), self.genre.name)
 
+    def test_can_create_language(self):
+        self.assertEqual(self.language.__str__(), self.language.name)
     
     def test_can_create_book(self):
         book = Book.objects.create(
@@ -35,7 +39,7 @@ class ModelsTestCases(TestCase):
         book.genre.add(self.genre)
         number_of_books = Book.objects.all().count()
 
-        x = book.display_genre()
+        #x = book.display_genre()
         #ipdb.set_trace()
         self.assertEqual(book.__str__(), book.title)
         self.assertEqual(number_of_books,1)
