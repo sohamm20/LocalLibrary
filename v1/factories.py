@@ -28,5 +28,12 @@ class BookFactory(factory.django.DjangoModelFactory):
     title = faker.text(max_nb_chars=100, ext_word_list=['Best', 'book', 'Adventure'])
     summary = faker.paragraph(nb_sentences=4)
     isbm = faker.isbn13()
+   
 
+class AuthorFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Author
+
+    first_name = faker.first_name()
+    last_name = faker.last_name()
     
