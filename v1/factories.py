@@ -37,3 +37,12 @@ class AuthorFactory(factory.django.DjangoModelFactory):
     first_name = faker.first_name()
     last_name = faker.last_name()
     
+class BookInstanceFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = BookInstance
+
+    id = faker.uuid4()
+    imprint = faker.text(max_nb_chars=80)
+    due_back = faker.date()
+    status = faker.random_element(elements=('m', 'o', 'a', 'r'))
+
