@@ -31,7 +31,7 @@ class ModelsTestCases(TestCase):
     def test_can_create_book_model(self):
         book = Book.objects.create(
             author=self.author,
-            Language=self.language,
+            language=self.language,
         )
         book.genre.add(self.genre)
         number_of_books = Book.objects.all().count()
