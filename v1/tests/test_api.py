@@ -5,12 +5,17 @@ from rest_framework.test import APITestCase
 from catalog.models import (
     BookInstance,
     Genre,
+    Book,
 )
 from v1.serializers import (
     GenreSerializer,
+    BookSerializer,
 )
 from v1.factories import (
+    AuthorFactory,
+    BookFactory,
     GenreFactory,
+    LanguageFactory,
 )
 import ipdb
 class GenreListTest(APITestCase):
@@ -31,8 +36,6 @@ class GenreListTest(APITestCase):
 
         self.assertEqual(res.json(), expected_result)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-
     
     def test_get_genre_list(self):
         response = self.client.get(reverse('genres'))
@@ -61,7 +64,64 @@ class GenreListTest(APITestCase):
         self.assertEqual(response.json(), {'name': ['This field may not be blank.']})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+class BookListTest(APITestCase):
+    def setUp(self):
+        #self.book = BookFactory()
+        self.genre = GenreFactory()
+        self.language = LanguageFactory()
+        self.author = AuthorFactory()
+        self.book = Book.objects.create(
+            title = 'The lost boy',
+            summary = 'A story about a powerful martial artist',
+            isbm = '1234567890981',
+            author=self.author,
+            language=self.language,
+        )
+        self.book.genre.add(self.genre)
+        
+        self.valid_payload = {
+            'title': 'Murim book',
+            'summary': 'Legend of the Northern Blade',
+            'isbm': '1234567890123',
+            'author': '1',
+            'language': '1',
+            'genre': [1]
+        }
+        self.invalid_payload = {
+            'title': 'Murim book',
+            'summary': 'Legend of the Northern Blade',
+            'isbm': '',
+            'author': '2',
+            'language': '1',
+            'genre': [1]
+        }
+        
+    def test_get_all_books(self):
+        response = self.client.get(reverse('books'))
+        qs = Book.objects.all()
+        books = qs.count()
+        serializer = BookSerializer(qs, many=True)
+        self.assertEqual(books, 1)
+        self.assertEqual(response.data, serializer.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_can_create_valid_book(self):
+        response = self.client.post(
+            reverse('books'),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.json(), {'id': 2, 'title': 'Murim book', 'summary': 'Legend of the Northern Blade', 'isbm': '1234567890123', 'author': 1, 'language': 1, 'genre': [1]})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_invalid_book(self):
+        response = self.client.post(
+            reverse('books'),
+            data=json.dumps(self.invalid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.json(), {'isbm': ['This field may not be blank.'], 'author': ['Invalid pk "2" - object does not exist.']})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 
