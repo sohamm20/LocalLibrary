@@ -49,6 +49,7 @@ class GenreListTest(APITestCase):
             data=json.dumps(self.valid_payload),
             content_type='application/json'
         )
+        self.assertEqual(response.json(), {'id': 3, 'name': 'Classic'})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_invalid_genre(self):
@@ -57,6 +58,7 @@ class GenreListTest(APITestCase):
             data=json.dumps(self.invalid_payload),
             content_type='application/json'
         )
+        self.assertEqual(response.json(), {'name': ['This field may not be blank.']})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
