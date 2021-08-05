@@ -6,10 +6,12 @@ from catalog.models import (
     BookInstance,
     Genre,
     Book,
+    Author,
 )
 from v1.serializers import (
     GenreSerializer,
     BookSerializer,
+    AuthorSerializer,
 )
 from v1.factories import (
     AuthorFactory,
@@ -169,4 +171,85 @@ class BookListTest(APITestCase):
         )
         books = Book.objects.count()
         self.assertEqual(books, 1)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+class AuthorListTest(APITestCase):
+    def setUp(self):
+        self.author = AuthorFactory()
+        self.author2 = AuthorFactory()
+        self.valid_payload = {
+            'first_name': 'Mark',
+            'last_name': 'Kish',
+            'date_of_birth': '1997-11-23'
+        }
+        self.invalid_payload = {
+            'first_name': '',
+            'last_name': '',
+            'date_of_birth': '1997-11-23',
+            'date_of_death': '2021-8-4'
+        }
+
+    def test_get_all_authors(self):
+        response = self.client.get(reverse('authors'))
+        qs = Author.objects.all()
+        authors = qs.count()
+        serializer = AuthorSerializer(qs, many=True)
+        self.assertEqual(authors, 2)
+        self.assertEqual(response.data, serializer.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_create_valid_author(self):
+        response = self.client.post(
+            reverse('authors'),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.json(), {'id': 3, 'first_name': 'Mark', 'last_name': 'Kish', 'date_of_birth': '1997-11-23', 'date_of_death': None})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_invalid_author(self):
+        response = self.client.post(
+            reverse('authors'),
+            data=json.dumps(self.invalid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.json(), {'first_name': ['This field may not be blank.'], 'last_name': ['This field may not be blank.']})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_get_single_author(self):
+        response = self.client.get(reverse('author-detail', kwargs={'pk': self.author.pk}))
+        author = Author.objects.get(pk=self.author.pk)
+        serializer = AuthorSerializer(author)
+        self.assertEqual(response.data, serializer.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_author_does_not_exist(self):
+        response = self.client.get(reverse('author-detail', kwargs={'pk': 40}))
+        self.assertEqual(response.json(), {'detail': 'Not found.'})
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_valid_update_author(self):
+        response = self.client.put(
+            reverse('author-detail', kwargs={'pk': self.author.pk}),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.json(), {'id': 1, 'first_name': 'Mark', 'last_name': 'Kish', 'date_of_birth': '1997-11-23', 'date_of_death': None})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_invalid_update_author(self):
+        response = self.client.put(
+            reverse('author-detail', kwargs={'pk': self.author.pk}),
+            data=json.dumps(self.invalid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.json(), {'first_name': ['This field may not be blank.'], 'last_name': ['This field may not be blank.']})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_valid_delete_author(self):
+        response = self.client.delete(
+            reverse('author-detail', kwargs={'pk': self.author2.pk})
+        )
+        authors = Author.objects.count()
+        self.assertEqual(authors, 1)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
