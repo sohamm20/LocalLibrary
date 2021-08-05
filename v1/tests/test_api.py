@@ -139,6 +139,12 @@ class BookListTest(APITestCase):
         self.assertEqual(response.data, serializer.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_get_book_does_not_exist(self):
+        #test using non-existent pk
+        response = self.client.get(reverse('book-detail', kwargs={'pk': 1000}))
+        self.assertEqual(response.json(), {'detail': 'Not found.'})
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_valid_update_book(self):
         response = self.client.put(
             reverse('book-detail', kwargs={'pk': self.book.pk}),
