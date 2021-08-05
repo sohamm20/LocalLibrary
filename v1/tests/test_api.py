@@ -7,15 +7,18 @@ from catalog.models import (
     Genre,
     Book,
     Author,
+    User,
 )
 from v1.serializers import (
     GenreSerializer,
     BookSerializer,
     AuthorSerializer,
+    BookInstanceSerializer,
 )
 from v1.factories import (
     AuthorFactory,
     BookFactory,
+    BookInstanceFactory,
     GenreFactory,
     LanguageFactory,
 )
@@ -253,3 +256,62 @@ class AuthorListTest(APITestCase):
         authors = Author.objects.count()
         self.assertEqual(authors, 1)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+class BookInstanceTest(APITestCase):
+    def setUp(self):
+        self.book = BookFactory()
+        self.test_user = User.objects.create(
+            username='FauzTest',
+            email='fauztest@test.com',
+            password='123456789X',
+        )
+        self.book_instance = BookInstance.objects.create(
+            book = self.book,
+            imprint = 'This is the imprint of whatever book this is',
+            due_back = '2021-10-1',
+            borrower = self.test_user,
+            status = 'o'
+        )
+        self.valid_payload = {
+            'id': 'd6d98b88-c866-4496-9bd4-de7ba48d0f52',
+            'book': '1',
+            'imprint': 'This is just an imprint',
+            'due_back': '2021-09-03',
+            'borrower': 1,
+            'status': 'm'
+        }
+        self.invalid_payload = {
+            'id': '',
+            'book': 3,
+            'imprint': 'This is just an imprint',
+            'due_back': '2021-09-03',
+            'borrower': 1,
+            'status': 'o'
+        }
+        
+    def test_all_borrowed_book_instance(self):
+        response = self.client.get('/api/borrowed/', {'q': 'o'})
+        queryset = BookInstance.objects.all()
+        count = queryset.count()
+        serializer = BookInstanceSerializer(queryset, many=True)
+        self.assertEqual(response.data, serializer.data)
+        self.assertEqual(count, 1)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_create_valid_book_instance(self):
+        response = self.client.post(
+            reverse('all-borrowed'),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.json(), {'id': 'd6d98b88-c866-4496-9bd4-de7ba48d0f52', 'imprint': 'This is just an imprint', 'due_back': '2021-09-03', 'status': 'm', 'book': 1, 'borrower': 1})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_invalid_book_instance(self):
+        response = self.client.post(
+            reverse('all-borrowed'),
+            data=json.dumps(self.invalid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.json(), {'id': ['Must be a valid UUID.'], 'book': ['Invalid pk "3" - object does not exist.']})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
