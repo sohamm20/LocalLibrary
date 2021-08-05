@@ -78,6 +78,15 @@ class BookListTest(APITestCase):
             language=self.language,
         )
         self.book.genre.add(self.genre)
+
+        self.junglebook = Book.objects.create(
+            title = 'The jungle book',
+            summary = 'A story about a boy in the jungle',
+            isbm = '1234588888811',
+            author=self.author,
+            language=self.language,
+        )
+        self.junglebook.genre.add(self.genre)
         
         self.valid_payload = {
             'title': 'Murim book',
@@ -101,7 +110,7 @@ class BookListTest(APITestCase):
         qs = Book.objects.all()
         books = qs.count()
         serializer = BookSerializer(qs, many=True)
-        self.assertEqual(books, 1)
+        self.assertEqual(books, 2)
         self.assertEqual(response.data, serializer.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -111,7 +120,7 @@ class BookListTest(APITestCase):
             data=json.dumps(self.valid_payload),
             content_type='application/json'
         )
-        self.assertEqual(response.json(), {'id': 2, 'title': 'Murim book', 'summary': 'Legend of the Northern Blade', 'isbm': '1234567890123', 'author': 1, 'language': 1, 'genre': [1]})
+        self.assertEqual(response.json(), {'id': 3, 'title': 'Murim book', 'summary': 'Legend of the Northern Blade', 'isbm': '1234567890123', 'author': 1, 'language': 1, 'genre': [1]})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_invalid_book(self):
@@ -123,5 +132,35 @@ class BookListTest(APITestCase):
         self.assertEqual(response.json(), {'isbm': ['This field may not be blank.'], 'author': ['Invalid pk "2" - object does not exist.']})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_get_single_book(self):
+        response = self.client.get(reverse('book-detail', kwargs={'pk': self.book.pk}))
+        book = Book.objects.get(pk=self.book.pk)
+        serializer = BookSerializer(book)
+        self.assertEqual(response.data, serializer.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_valid_update_book(self):
+        response = self.client.put(
+            reverse('book-detail', kwargs={'pk': self.book.pk}),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.json(), {'id': 1, 'title': 'Murim book', 'summary': 'Legend of the Northern Blade', 'isbm': '1234567890123', 'author': 1, 'language': 1, 'genre': [1]})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_invalid_update_book(self):
+        response = self.client.put(
+            reverse('book-detail', kwargs={'pk': self.book.pk}),
+            data=json.dumps(self.invalid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.json(), {'isbm': ['This field may not be blank.'], 'author': ['Invalid pk "2" - object does not exist.']})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_valid_delete_book(self):
+        response = self.client.delete(
+            reverse('book-detail', kwargs={'pk': self.junglebook.pk})
+        )
+        books = Book.objects.count()
+        self.assertEqual(books, 1)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
