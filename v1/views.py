@@ -21,8 +21,6 @@ from rest_framework import status
 from rest_framework.views import APIView
 from django.http import Http404
 class GenreListAPIView(APIView):
-    #serializer_class = GenreSerializer
-    #queryset = Genre.objects.all()
     permission_classes = [AllowAny]
     def get(self, request):
         query = self.request.GET.get('q')
@@ -34,20 +32,16 @@ class GenreListAPIView(APIView):
 
         serializer = GenreSerializer(qs, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
-        #ipdb.set_trace()
-        #print(serializer.__dict__)
 
     def post(self, request):
         serializer = GenreSerializer(data=request.data)
         
         if serializer.is_valid():
-            serializer.save()     # return an object instance, based on the validated data.
+            serializer.save()
             return Response(data=serializer.data, status=status.HTTP_201_CREATED)
         return Response(data=serializer.errors, status= status.HTTP_400_BAD_REQUEST)
 
 class BookListAPIView(APIView):
-    #serializer_class = BookSerializer
-    #queryset = Book.objects.all()
     permission_classes = [AllowAny]
     def get(self, request):
         queryset = Book.objects.all()
@@ -128,8 +122,6 @@ class AuthorDetailView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class LoanedBooksAllListAPIView(APIView):
-    #serializer_class = BookInstanceSerializer
-    #queryset = BookInstance.objects.filter(status=BookInstance.ON_LOAN)
     permission_classes = [AllowAny]
     def get(self, request):
         query = self.request.GET.get('q')
