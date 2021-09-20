@@ -5,6 +5,11 @@ from datetime import date
 from django.db import models
 from django.urls import reverse
 
+import uuid # Required for unique book instances
+from django.contrib.auth.models import Permission, PermissionsMixin, User
+from datetime import date
+
+
 # Create your models here.
 class Genre(models.Model):
     """Model representing a book genre."""
@@ -40,6 +45,7 @@ class Book(models.Model):
         return ', '.join(genre.name for genre in self.genre.all()[:1])
 
     #display_genre.short_description = 'Genre'
+
 
 class BookInstance(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, help_text='Unique ID for this particular book across whole library')
