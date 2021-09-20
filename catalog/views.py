@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from .models import Book, Author, BookInstance, Genre, Language
-#from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import PermissionRequiredMixin
 
