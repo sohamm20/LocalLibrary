@@ -14,8 +14,6 @@ from django.contrib.auth.decorators import login_required, permission_required
 from catalog.forms import RenewBookForm 
 from django.views import generic
 
-# Create your views here.
-#@login_required
 def index(request):
      # Generate counts of some of the main objects
      num_books = Book.objects.all().count()
